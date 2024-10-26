@@ -1,4 +1,5 @@
 """Config flow for Envisalink integration."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -15,6 +16,7 @@ from homeassistant.helpers.device_registry import format_mac
 
 from .const import (
     CONF_ALARM_NAME,
+    CONF_CODE_ARM_REQUIRED,
     CONF_CREATE_ZONE_BYPASS_SWITCHES,
     CONF_EVL_DISCOVERY_PORT,
     CONF_EVL_KEEPALIVE,
@@ -88,7 +90,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if key in user_input:
                     config_defaults[key] = user_input[key]
 
-        user_data_schema = _get_user_data_schema(config_defaults, is_creation=True)
+        user_data_schema = _get_user_data_schema(config_defaults)
 
         return self.async_show_form(
             step_id="user", data_schema=user_data_schema, errors=errors
@@ -154,7 +156,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
                 return self.async_create_entry(title="", data=self.config_entry.options)
 
-        user_data_schema = _get_user_data_schema(config_defaults)
+        user_data_schema = _get_user_data_schema(
+            current_data=self.config_entry.data, defaults=config_defaults
+        )
 
         return self.async_show_form(
             step_id="basic",
@@ -335,9 +339,9 @@ async def _validate_input(
     return panel
 
 
-def _get_user_data_schema(defaults: dict[str, Any], is_creation: bool = False):
+def _get_user_data_schema(defaults: dict[str, Any], current_data=None):
     schema = {}
-    if is_creation:
+    if current_data is None:
         schema = {
             vol.Required(CONF_ALARM_NAME, default=defaults[CONF_ALARM_NAME]): cv.string,
         }
@@ -348,14 +352,23 @@ def _get_user_data_schema(defaults: dict[str, Any], is_creation: bool = False):
         vol.Required(CONF_PASS, default=defaults[CONF_PASS]): cv.string,
         vol.Required(CONF_PARTITION_SET, default=defaults[CONF_PARTITION_SET]): cv.string,
         vol.Required(CONF_ZONE_SET, default=defaults[CONF_ZONE_SET]): cv.string,
-        vol.Optional(
-            CONF_CODE, description={"suggested_value": defaults[CONF_CODE]}, default=""
-        ): cv.string,
         vol.Required(CONF_EVL_PORT, default=defaults[CONF_EVL_PORT]): cv.port,
         vol.Required(
             CONF_EVL_DISCOVERY_PORT, default=defaults[CONF_EVL_DISCOVERY_PORT]
         ): cv.string,
+        vol.Optional(
+            CONF_CODE, description={"suggested_value": defaults[CONF_CODE]}, default=""
+        ): cv.string,
     }
+
+    code = current_data.get(CONF_CODE)
+    if not code:
+        schema = schema | {
+            vol.Optional(
+                CONF_CODE_ARM_REQUIRED, default=defaults[CONF_CODE_ARM_REQUIRED]
+            ): cv.bool
+        }
+
     return vol.Schema(schema)
 
 
@@ -370,8 +383,9 @@ def _get_user_data_defaults(data=None):
         CONF_PASS: data.get(CONF_PASS, ""),
         CONF_ZONE_SET: data.get(CONF_ZONE_SET, ""),
         CONF_PARTITION_SET: data.get(CONF_PARTITION_SET, DEFAULT_PARTITION_SET),
-        CONF_CODE: data.get(CONF_CODE, ""),
         CONF_EVL_PORT: data.get(CONF_EVL_PORT, DEFAULT_PORT),
         CONF_EVL_DISCOVERY_PORT: data.get(CONF_EVL_DISCOVERY_PORT, DEFAULT_DISCOVERY_PORT),
+        CONF_CODE: data.get(CONF_CODE, ""),
+        CONF_CODE_ARM_REQUIRED: data.get(CONF_CODE_ARM_REQUIRED, False),
     }
     return config_defaults

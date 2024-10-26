@@ -12,6 +12,7 @@ CONF_ALARM_NAME = "alarm_name"
 CONF_ZONE_SET = "zone_set"
 CONF_PARTITION_SET = "partition_set"
 
+CONF_CODE_ARM_REQUIRED = "code_arm_required"  # OPTION
 CONF_EVL_KEEPALIVE = "keepalive_interval"  # OPTION
 CONF_EVL_PORT = "port"
 CONF_EVL_DISCOVERY_PORT = "discovery_port"
