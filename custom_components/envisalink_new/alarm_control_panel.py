@@ -1,4 +1,5 @@
 """Support for Envisalink-based alarm control panels (Honeywell/DSC)."""
+
 from __future__ import annotations
 
 import homeassistant.helpers.config_validation as cv
@@ -10,6 +11,7 @@ from homeassistant.components.alarm_control_panel import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    ATTR_CODE,
     CONF_CODE,
     STATE_ALARM_ARMED_AWAY,
     STATE_ALARM_ARMED_HOME,
@@ -24,6 +26,7 @@ from homeassistant.helpers import entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import (
+    CONF_CODE_ARM_REQUIRED,
     CONF_HONEYWELL_ARM_NIGHT_MODE,
     CONF_PANIC,
     CONF_PARTITION_SET,
@@ -44,14 +47,6 @@ ATTR_KEYPRESS = "keypress"
 
 SERVICE_CUSTOM_FUNCTION = "invoke_custom_function"
 ATTR_CUSTOM_FUNCTION = "pgm"
-ATTR_CODE = "code"
-
-SERVICE_SCHEMA = vol.Schema(
-    {
-        vol.Required(ATTR_CUSTOM_FUNCTION): cv.string,
-        vol.Optional(ATTR_CODE): cv.string,
-    }
-)
 
 
 async def async_setup_entry(
@@ -62,6 +57,7 @@ async def async_setup_entry(
     """Set up the alarm panel based on a config entry."""
     controller = hass.data[DOMAIN][entry.entry_id]
     code = entry.data.get(CONF_CODE)
+    code_arm_required = entry.data.get(CONF_CODE_ARM_REQUIRED)
     panic_type = entry.options.get(CONF_PANIC, DEFAULT_PANIC)
     partition_info = entry.data.get(CONF_PARTITIONS)
     partition_spec: str = entry.data.get(CONF_PARTITION_SET, DEFAULT_PARTITION_SET)
@@ -84,6 +80,7 @@ async def async_setup_entry(
                 part_num,
                 part_entry,
                 code,
+                code_arm_required,
                 panic_type,
                 arm_night_mode,
                 controller,
@@ -128,6 +125,7 @@ class EnvisalinkAlarm(EnvisalinkDevice, AlarmControlPanelEntity):
         partition_number,
         extra_yaml_conf,
         code,
+        code_arm_required,
         panic_type,
         arm_night_mode,
         controller,
@@ -137,7 +135,7 @@ class EnvisalinkAlarm(EnvisalinkDevice, AlarmControlPanelEntity):
         self._code = code
         self._panic_type = panic_type
         self._arm_night_mode = arm_night_mode
-        self._attr_code_arm_required = False
+        self._attr_code_arm_required = code_arm_required
 
         setup_info = generate_entity_setup_info(
             controller, "partition", partition_number, None, extra_yaml_conf

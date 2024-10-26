@@ -1,4 +1,5 @@
 """Config flow for Envisalink integration."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -15,6 +16,7 @@ from homeassistant.helpers.device_registry import format_mac
 
 from .const import (
     CONF_ALARM_NAME,
+    CONF_CODE_ARM_REQUIRED,
     CONF_CREATE_ZONE_BYPASS_SWITCHES,
     CONF_EVL_DISCOVERY_PORT,
     CONF_EVL_KEEPALIVE,
@@ -348,11 +350,15 @@ def _get_user_data_schema(defaults: dict[str, Any], is_creation: bool = False):
         vol.Optional(
             CONF_CODE, description={"suggested_value": defaults[CONF_CODE]}, default=""
         ): cv.string,
+        vol.Optional(
+            CONF_CODE_ARM_REQUIRED, default=defaults[CONF_CODE_ARM_REQUIRED]
+        ): cv.boolean,
         vol.Required(CONF_EVL_PORT, default=defaults[CONF_EVL_PORT]): cv.port,
         vol.Required(
             CONF_EVL_DISCOVERY_PORT, default=defaults[CONF_EVL_DISCOVERY_PORT]
         ): cv.string,
     }
+
     return vol.Schema(schema)
 
 
@@ -368,6 +374,7 @@ def _get_user_data_defaults(data=None):
         CONF_ZONE_SET: data.get(CONF_ZONE_SET, ""),
         CONF_PARTITION_SET: data.get(CONF_PARTITION_SET, DEFAULT_PARTITION_SET),
         CONF_CODE: data.get(CONF_CODE, ""),
+        CONF_CODE_ARM_REQUIRED: data.get(CONF_CODE_ARM_REQUIRED, False),
         CONF_EVL_PORT: data.get(CONF_EVL_PORT, DEFAULT_PORT),
         CONF_EVL_DISCOVERY_PORT: data.get(CONF_EVL_DISCOVERY_PORT, DEFAULT_DISCOVERY_PORT),
     }

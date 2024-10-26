@@ -16,6 +16,7 @@
         "data": {
           "alarm_name": "Alarm Name",
           "code": "Alarm code",
+          "code_arm_required": "Require a code to arm (disable quick exit)",
           "discovery_port": "Discovery Port",
           "host": "Host",
           "partition_set": "Partition list",
@@ -51,6 +52,7 @@
       "basic": {
         "data": {
           "code": "Alarm code",
+          "code_arm_required": "Require a code to arm (disable quick exit)",
           "discovery_port": "Discovery Port",
           "host": "Host",
           "partition_set": "Partition list",

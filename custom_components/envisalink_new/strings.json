@@ -11,6 +11,7 @@
           "partition_set": "Partition list",
           "zone_set": "Zone list",
           "code": "Alarm code",
+          "code_arm_required": "Require a code to arm",
           "discovery_port": "Discovery Port"
         }
       }
@@ -43,6 +44,7 @@
           "partition_set": "[%key:component::envisalink::config::step::user::data::partition_set%]",
           "zone_set": "[%key:component::envisalink::config::step::user::data::zone_set%]",
           "code": "[%key:component::envisalink::config::step::user::data::code%]",
+          "code_arm_required": "[%key:component::envisalink::config::step::user::data::code_arm_required%]",
           "discovery_port": "[%key:component::envisalink::config::step::user::data::discovery_port%]"
         }
       },
