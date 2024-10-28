@@ -58,6 +58,11 @@ async def async_setup_entry(
     controller = hass.data[DOMAIN][entry.entry_id]
     code = entry.data.get(CONF_CODE)
     code_arm_required = entry.data.get(CONF_CODE_ARM_REQUIRED)
+
+    # if the data is not set, keep the old behavior for backward compatibility
+    if code_arm_required is None:
+        code_arm_required = not code
+
     panic_type = entry.options.get(CONF_PANIC, DEFAULT_PANIC)
     partition_info = entry.data.get(CONF_PARTITIONS)
     partition_spec: str = entry.data.get(CONF_PARTITION_SET, DEFAULT_PARTITION_SET)
